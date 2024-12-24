@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Theft Simulation with Device Detection</title>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .input-field {
+            margin: 10px 0;
+            padding: 8px;
+            width: 100%;
+        }
+        .response {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Simulate Internet Theft</h1>
+    <p>Enter your details to simulate how they can be stolen and misused.</p>
+
+    <form id="user-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" class="input-field" placeholder="Enter your name" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" class="input-field" placeholder="Enter your email" required>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" class="input-field" placeholder="Enter your password" required>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="ip-info"></div>
+    <div id="device-info"></div>
+    <div id="theft-info"></div>
+    <div id="error-msg" class="error"></div>
+</div>
+
+<script>
+// Simulate capturing and "encrypting" user data
+document.getElementById('user-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    // Clear previous messages
+    document.getElementById('error-msg').innerHTML = '';
+    document.getElementById('theft-info').innerHTML = '';
+    document.getElementById('ip-info').innerHTML = '';
+    document.getElementById('device-info').innerHTML = '';
+
+    // Simple client-side validation
+    if (!name || !email || !password) {
+        document.getElementById('error-msg').innerHTML = 'Please fill in all fields.';
+        return;
+    }
+
+    // Encrypt the password (simulated with Base64 encoding)
+    const encryptedPassword = btoa(password); // Using Base64 to simulate encryption (for demo purposes)
+
+    // Store encrypted password and user data (optional: to simulate persistent storage)
+    localStorage.setItem('userData', JSON.stringify({ name, email, encryptedPassword }));
+
+    // Fetch user's IP address and display it
+    getIpAddress().then(ip => {
+        displayIpInfo(ip);
+        displayDeviceInfo();
+        displayTheftInfo(name, email, encryptedPassword, ip);
+    }).catch(err => {
+        document.getElementById('error-msg').innerHTML = 'Failed to retrieve IP address.';
+    });
+});
+
+function getIpAddress() {
+    // Fetch the IP address from a public API (e.g., ipify or ip-api)
+    return fetch('https://api.ipify.org?format=json')  // You can replace this with any IP fetching service
+        .then(response => response.json())
+        .then(data => data.ip);
+}
+
+function displayIpInfo(ip) {
+    const ipInfoDiv = document.getElementById('ip-info');
+    const ipMessage = document.createElement('div');
+    ipMessage.classList.add('response');
+    ipMessage.textContent = `Your IP address is: ${ip}`;
+    ipInfoDiv.appendChild(ipMessage);
+}
+
+function displayDeviceInfo() {
+    const deviceInfoDiv = document.getElementById('device-info');
+    const userAgent = navigator.userAgent;
+
+    // Detect if the device is running iOS or Android
+    let os = "Unknown OS";
+    let brand = "Unknown Brand";
+
+    // Check if the device is an iPhone, iPad, or iPod
+    if (/iPhone|iPad|iPod/i.test(userAgent)) {
+        os = "iOS";
+        if (/iPhone/i.test(userAgent)) {
+            brand = "Apple iPhone";
+        } else if (/iPad/i.test(userAgent)) {
+            brand = "Apple iPad";
+        } else if (/iPod/i.test(userAgent)) {
+            brand = "Apple iPod";
+        }
+    }
+
+    // Check if the device is Android
+    else if (/Android/i.test(userAgent)) {
+        os = "Android";
+        
+        // Detect popular Android brands more accurately
+        if (/Samsung/i.test(userAgent)) {
+            brand = "Samsung";
+        } else if (/Huawei/i.test(userAgent)) {
+            brand = "Huawei";
+        } else if (/Xiaomi/i.test(userAgent)) {
+            brand = "Xiaomi";
+        } else if (/OnePlus/i.test(userAgent)) {
+            brand = "OnePlus";
+        } else if (/Google/i.test(userAgent)) {
+            brand = "Google Pixel";
+        } else if (/Motorola/i.test(userAgent)) {
+            brand = "Motorola";
+        } else if (/LG/i.test(userAgent)) {
+            brand = "LG";
+        } else if (/Nokia/i.test(userAgent)) {
+            brand = "Nokia";
+        } else {
+            brand = "Android Device";
+        }
+    }
+
+    // Display mobile brand and OS
+    const deviceInfoMessage = document.createElement('div');
+    deviceInfoMessage.classList.add('response');
+    deviceInfoMessage.textContent = `You are using a ${brand} with ${os}.`;
+    deviceInfoDiv.appendChild(deviceInfoMessage);
+}
+
+function displayTheftInfo(name, email, encryptedPassword, ip) {
+    const theftInfoDiv = document.getElementById('theft-info');
+
+    // Simulated theft message
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('response');
+    messageDiv.textContent = "Warning! Your information could be stolen and misused.";
+    theftInfoDiv.appendChild(messageDiv);
+
+    // Display consequences based on simulated theft
+    const consequences = [
+        `Your name: ${name} could be used for identity theft or impersonation.`,
+        `Your email: ${email} could be exploited in phishing attacks.`,
+        `Your password: ${encryptedPassword} could be decrypted (simulated) and used to access sensitive accounts.`,
+        `Your IP address: ${ip} could be tracked and used to determine your geographical location or identity.`
+    ];
+
+    consequences.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('response');
+        itemDiv.textContent = item;
+        theftInfoDiv.appendChild(itemDiv);
+    });
+}
+</script>
+
+</body>
+</html>
